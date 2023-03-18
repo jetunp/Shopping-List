@@ -5,15 +5,28 @@ const itemList = document.querySelector('#item-list');
 const clearBtn = document.querySelector('#clear');
 const filter = document.querySelector('#filter');
 
-//Event Listeners
-itemForm.addEventListener('submit', addItem);
-itemList.addEventListener('click',removeItem);
-clearBtn.addEventListener('click',clearItems);
-filter.addEventListener('input',filterItems);
+//initialize app
+function init() {
+    //Event Listeners
+    itemForm.addEventListener('submit', onAddItemSubmit);
+    itemList.addEventListener('click',onClickItem);
+    clearBtn.addEventListener('click',clearItems);
+    filter.addEventListener('input',filterItems);
+    document.addEventListener('DOMContentLoaded',displayItems);
+    
+    //run this function when the page loads to reset filterItems and ClearAll elements.
+    resetUI();
+}
 
+//display the items stored to local storage
+function displayItems() {
+    const itemsFromStorage = getItemsFromStorage();
+    itemsFromStorage.forEach(item => addItemToDOM(item));
+    resetUI();
+}
 
 //Add items to the list (DOM Only)
-function addItem(e) {
+function onAddItemSubmit(e) {
     e.preventDefault();
     const newItem =itemInput.value;
     //input empty validation
@@ -22,10 +35,22 @@ function addItem(e) {
         return;
     }
     
+    //create item DOM element
+    addItemToDOM(newItem);
+
+    //add item to local storage
+    addItemToLocalStorage(newItem);
+
+    resetUI();
+
+    itemInput.value = '';
+}
+
+function addItemToDOM(item) {
     //create list item
     const listItem = document.createElement('li');
     //create text node
-    const text = document.createTextNode(newItem);
+    const text = document.createTextNode(item);
     //insert text node in the element
     listItem.appendChild(text);
 
@@ -35,10 +60,6 @@ function addItem(e) {
     
     //add whole (li) element to the dom
     itemList.appendChild(listItem);
-
-    resetUI();
-
-    itemInput.value = '';
 }
 
 //Create button for the new added items
@@ -59,12 +80,55 @@ function createIcon(classes) {
     return icon;
 }
 
-//Delete the items by clicking X buttons
-function removeItem(e) {
-    if(e.target.parentNode.classList.contains('remove-item') && confirm('Are you sure?')) {
-        e.target.parentNode.parentNode.remove();
+//Add Items to local storage
+function addItemToLocalStorage(item) {
+    const itemsFromStorage = getItemsFromStorage();
+
+    //Add new item to array
+    itemsFromStorage.push(item);
+
+    //convert to JSON string and set to local storage
+    localStorage.setItem('items', JSON.stringify(itemsFromStorage));
+}
+
+function getItemsFromStorage(item) {
+    let itemsFromStorage;
+
+    //check if any items in local storage
+    if(localStorage.getItem('items') === null) {
+        itemsFromStorage = [];
+    } else {
+        itemsFromStorage = JSON.parse(localStorage.getItem('items'));
     }
+
+    return itemsFromStorage;
+}
+
+function onClickItem(e) {
+    if(e.target.parentNode.classList.contains('remove-item') && confirm('Are you sure?')) {
+        removeItem(e.target.parentNode.parentNode);
+    }
+}
+
+//Delete the items by clicking X buttons
+function removeItem(item) {
+    //remove the item from the DOM
+    item.remove();
+
+    //remove the item from the local storage
+    removeItemFromStorage(item.textContent);
     resetUI();
+}
+
+//remove the item from the storage when removed from DOM
+function removeItemFromStorage(item) {
+    let itemsFromStorage = getItemsFromStorage();
+    
+    //filter out the items to be removed
+    itemsFromStorage = itemsFromStorage.filter(i => i !== item);
+
+    //reset to local storage
+    localStorage.setItem('items',JSON.stringify(itemsFromStorage));
 }
 
 //Clear all the items when clearAll button clicked
@@ -72,6 +136,10 @@ function clearItems(e) {
     while (itemList.firstChild) {
         itemList.removeChild(itemList.firstChild);
     }
+
+    //clear from local storage
+    localStorage.removeItem('items');
+    
     resetUI();
 }
 
@@ -101,5 +169,4 @@ function resetUI(e) {
     }
 }
 
-//run this function when the page loads to reset filterItems and ClearAll elements.
-resetUI();
+init();
