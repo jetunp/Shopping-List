@@ -220,7 +220,7 @@ logos[3] = ["images/list4.png"];
 function changeLogo() {
 
     document.getElementById("mainPhoto").src = logos[index];
-    if (index == 2) {
+    if (index == 3) {
         index = 0;
     } else {
         index++;
