@@ -15,6 +15,7 @@ function init() {
     clearBtn.addEventListener('click',clearItems);
     filter.addEventListener('input',filterItems);
     document.addEventListener('DOMContentLoaded',displayItems);
+    addEventListener('load',changeLogo);
     
     //run this function when the page loads to reset filterItems and ClearAll elements.
     resetUI();
@@ -207,6 +208,27 @@ function checkIfItemExists(item) {
     const itemsFromStorage = getItemsFromStorage();
     return itemsFromStorage.includes(item);
 }
+
+//change the logo every 2 seconds 
+let logos = [];
+let index = 0;
+logos[0] = ["images/list.png"];
+logos[1] = ["images/list2.png"];
+logos[2] = ["images/list3.png"];
+logos[3] = ["images/list4.png"];
+
+function changeLogo() {
+
+    document.getElementById("mainPhoto").src = logos[index];
+    if (index == 2) {
+        index = 0;
+    } else {
+        index++;
+    }
+    setTimeout(changeLogo, 2000);
+}
+
+
 
 //on load of the page check if there are any items, if not we dynamically not show filterItems and ClearAll.
 function resetUI(e) {
