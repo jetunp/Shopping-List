@@ -4,8 +4,10 @@ const itemInput = document.querySelector('#item-input');
 const itemList = document.querySelector('#item-list');
 const clearBtn = document.querySelector('#clear');
 const filter = document.querySelector('#filter');
+const formbtn = itemForm.querySelector('button');
+let isEditMode = false;
 
-//initialize app
+//function to initialize app
 function init() {
     //Event Listeners
     itemForm.addEventListener('submit', onAddItemSubmit);
@@ -35,6 +37,23 @@ function onAddItemSubmit(e) {
         return;
     }
     
+    //check for edit mode
+    if(isEditMode) {
+        const itemToEdit = document.querySelector('.edit-mode');
+
+        //remove the item selected to update from storage
+        removeItemFromStorage(itemToEdit.textContent);
+
+        //change back the style by removing edit mode class
+        itemToEdit.classList.remove('edit-mode');
+
+        //remove the item from DOM
+        itemToEdit.remove();
+
+        //shut down the edit mode
+        isEditMode =false;
+    }
+
     //create item DOM element
     addItemToDOM(newItem);
 
@@ -104,10 +123,31 @@ function getItemsFromStorage(item) {
     return itemsFromStorage;
 }
 
+//handler function
 function onClickItem(e) {
     if(e.target.parentNode.classList.contains('remove-item') && confirm('Are you sure?')) {
         removeItem(e.target.parentNode.parentNode);
+    } 
+    else if (e.target.tagName === 'LI'){
+        console.log(e.target);
+        setItemToEdit(e.target);
     }
+}
+
+//function to set the item to edit mode
+function setItemToEdit(item) {
+    isEditMode = true;
+
+    itemList
+    .querySelectorAll('li')
+    .forEach(i => i.style.background = 'cyan');
+
+    item.className = "edit-mode";
+    
+    //update the add item button to update item when an item is selcted to be updated
+    formbtn.innerHTML = ' <i class="fa-solid fa-pen"></i>  Update Item';
+    formbtn.style.backgroundColor = 'blueviolet';
+    itemInput.value = item.textContent;
 }
 
 //Delete the items by clicking X buttons
@@ -139,7 +179,7 @@ function clearItems(e) {
 
     //clear from local storage
     localStorage.removeItem('items');
-    
+
     resetUI();
 }
 
@@ -159,6 +199,8 @@ function filterItems(e) {
 
 //on load of the page check if there are any items, if not we dynamically not show filterItems and ClearAll.
 function resetUI(e) {
+    itemInput.value = '';
+
     const items = itemList.querySelectorAll('li');
     if (items.length === 0) {
         filter.style.display = 'none';
@@ -167,6 +209,12 @@ function resetUI(e) {
         filter.style.display = 'block';
         clearBtn.style.display = 'block';
     }
+
+    //change the update button back to add button
+    formbtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Item';
+    formbtn.style.backgroundColor = 'cyan';
+    isEditMode = false;
 }
 
+//Initialize the app
 init();
