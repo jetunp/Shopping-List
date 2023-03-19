@@ -52,6 +52,11 @@ function onAddItemSubmit(e) {
 
         //shut down the edit mode
         isEditMode =false;
+    } else {
+        if(checkIfItemExists(newItem)){
+            alert('Item already exists!');
+            return;
+        }
     }
 
     //create item DOM element
@@ -195,6 +200,12 @@ function filterItems(e) {
             item.style.display ='none';
         }
     });
+}
+
+//check to avoid duplicate items
+function checkIfItemExists(item) {
+    const itemsFromStorage = getItemsFromStorage();
+    return itemsFromStorage.includes(item);
 }
 
 //on load of the page check if there are any items, if not we dynamically not show filterItems and ClearAll.
