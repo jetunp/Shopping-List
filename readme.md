@@ -6,4 +6,4 @@ Application Snippet:
 
 ![](images/app.png)
 
-Demo: https://cool-mandazi-3e584b.netlify.app/
+Demo: https://shopping-cart-jetunp.netlify.app/
